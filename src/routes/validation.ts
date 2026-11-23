@@ -1,18 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 
-type Field = 'name' | 'email' | 'situationId' | 'productCategoryId' | 'productSituationId';
-type Resource = 'users' | 'product-categories' | 'product-situations' | 'products';
+type Field = 'name';
+type Resource = 'product-categories' | 'product-situations';
 
 const schemas: Record<Resource, Field[]> = {
-  users: ['name', 'email', 'situationId'],
   'product-categories': ['name'],
   'product-situations': ['name'],
-  products: ['name', 'productCategoryId', 'productSituationId'],
 };
-
-function isPositiveInteger(value: unknown): boolean {
-  return typeof value === 'number' && Number.isSafeInteger(value) && value > 0;
-}
 
 export function validateBody(resource: Resource, create: boolean) {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -32,19 +26,10 @@ export function validateBody(resource: Resource, create: boolean) {
       return;
     }
     for (const [field, value] of Object.entries(data)) {
-      if (field.endsWith('Id')) {
-        if (!isPositiveInteger(value)) {
-          res.status(400).json({ error: `${field} deve ser um inteiro positivo.` });
-          return;
-        }
-      } else if (typeof value !== 'string' || value.trim().length === 0 || value.length > 255) {
+      if (typeof value !== 'string' || value.trim().length === 0 || value.length > 255) {
         res.status(400).json({ error: `${field} deve ser um texto de 1 a 255 caracteres.` });
         return;
       }
-    }
-    if ('email' in data && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email as string)) {
-      res.status(400).json({ error: 'E-mail inválido.' });
-      return;
     }
     next();
   };

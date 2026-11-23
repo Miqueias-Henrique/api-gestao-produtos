@@ -13,13 +13,14 @@ export class SituationController {
       const schema = yup.object().shape({
         nameSituation: yup
           .string()
+          .trim()
           .required('O campo nome é obrigatório!')
           .min(3, 'O campo nome deve ter no mínimo 3 caracteres!'),
       });
 
-      await schema.validate(data, { abortEarly: false });
+      const validated = await schema.validate(data, { abortEarly: false });
 
-      const existingSituation = await situationService.findByName(data.nameSituation);
+      const existingSituation = await situationService.findByName(validated.nameSituation);
       if (existingSituation) {
         res.status(400).json({
           error: 'Já existe uma situação cadastrada com esse nome.',
@@ -27,7 +28,7 @@ export class SituationController {
         return;
       }
 
-      const result = await situationService.create({ nameSituation: data.nameSituation });
+      const result = await situationService.create({ nameSituation: validated.nameSituation });
       res.status(201).json(result);
     } catch (error: unknown) {
       if (error instanceof yup.ValidationError) {
@@ -70,11 +71,12 @@ export class SituationController {
       const schema = yup.object().shape({
         nameSituation: yup
           .string()
+          .trim()
           .required('O campo nome é obrigatório!')
           .min(3, 'O campo nome deve ter no mínimo 3 caracteres!'),
       });
 
-      await schema.validate(data, { abortEarly: false });
+      const validated = await schema.validate(data, { abortEarly: false });
 
       const situation = await situationService.findById(id);
       if (!situation) {
@@ -82,7 +84,7 @@ export class SituationController {
         return;
       }
 
-      const existingSituation = await situationService.findByName(data.nameSituation, id);
+      const existingSituation = await situationService.findByName(validated.nameSituation, id);
       if (existingSituation) {
         res.status(400).json({
           error: 'Já existe uma situação cadastrada com esse nome.',
@@ -90,7 +92,7 @@ export class SituationController {
         return;
       }
 
-      const updated = await situationService.update(id, { nameSituation: data.nameSituation });
+      const updated = await situationService.update(id, { nameSituation: validated.nameSituation });
       if (!updated) { res.status(404).json({ error: 'Situation não encontrada para atualizar' }); return; }
       res.json({ message: 'Situation atualizada com sucesso' });
     } catch (error: unknown) {

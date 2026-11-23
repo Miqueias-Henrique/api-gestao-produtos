@@ -11,6 +11,15 @@ export class Product {
   @Column({ type: 'varchar', length: 255, nullable: true })
   name!: string;
 
+  @Column({ type: 'varchar', length: 255, unique: true, nullable: false })
+  slug!: string;
+
+  @Column({ type: 'longtext', nullable: false })
+  description!: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
+  price!: number;
+
   @Column({ type: 'int', nullable: true })
   productSituationId!: number;
 
